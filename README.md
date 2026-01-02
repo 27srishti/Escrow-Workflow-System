@@ -1,36 +1,140 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Escrow Workflow System
 
-## Getting Started
+This project implements a workflow-driven escrow system between a Buyer and a Seller.
+The focus is on correct workflow modeling, clear business rules, and testable state transitions.
 
-First, run the development server:
+## Overview
+
+The system models an escrow lifecycle using a centralized state machine.
+Each action results in an immutable event, creating a complete append-only history of what happened and when.
+
+### Escrow states:
+
+- **PROPOSED**
+- **FUNDED**
+- **RELEASED**
+- **DISPUTED**
+- **REFUNDED**
+
+### Rules & Invariants
+
+The following rules are enforced in the domain layer and covered by tests:
+
+- Only the **Buyer** can fund an escrow
+- Only the **Buyer** can raise a dispute
+- Only the **Admin** can resolve disputes
+- Invalid state transitions are rejected
+- Once an escrow is **RELEASED** or **REFUNDED**, no further actions are allowed
+- Every action creates an immutable event in an append-only history
+
+## Architecture Overview
+
+### Backend
+
+- **TypeScript** is used across the codebase
+- Business logic is completely separated from API routes
+- All state transitions are centralized in a single domain state machine
+
+**Key layers:**
+
+- `src/domain/`
+  - `escrow-state.ts`: defines valid states, actions, and transitions
+  - `escrow.ts`: applies transitions and emits events
+  - `events.ts`: event definitions and state reconstruction logic
+- `src/storage/escrow-store.ts`
+  - Stores current escrow state
+  - Stores append-only event history (in-memory)
+
+### Frontend
+
+- Minimal UI built with **Next.js**
+- Supports:
+  - Creating an escrow
+  - Viewing current state
+  - Viewing full event history
+  - Triggering valid actions based on selected role (Buyer / Seller / Admin)
+- Design polish is intentionally minimal.
+
+## Learning Requirement
+
+**Chosen Concept: Event Sourcing**
+
+I chose event sourcing because the assignment explicitly requires an immutable, append-only history of all actions.
+
+### Why I chose it
+
+I had not previously implemented a system where:
+
+- state is derived from events
+- history is the primary source of truth
+
+This project was a good opportunity to learn how event sourcing works in practice, not just in theory.
+
+### What I learned
+
+- How to model domain events that clearly describe what happened
+- How to rebuild current state by replaying events in order
+- Why append-only logs improve auditability and debugging
+- How to keep state transitions deterministic and testable
+- The trade-offs of in-memory vs persistent event storage
+
+## Testing
+
+The project includes automated tests using **Vitest**.
+
+### Tests included
+
+- Unit tests for all valid and invalid state transitions
+- Tests proving invalid transitions are rejected
+- Happy-path integration tests covering:
+  - PROPOSED → FUNDED → RELEASED
+  - Dispute and admin resolution flow
+
+### Run tests with:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm test
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Invalid Transition Test
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The domain layer explicitly rejects invalid state transitions.
+For example, the following unit test proves that attempting to
+RELEASE an escrow directly from the PROPOSED state throws an error:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `escrow-state.test.ts` – rejects PROPOSED → RELEASED transition
 
-## Learn More
+## Demo Steps
 
-To learn more about Next.js, take a look at the following resources:
+1. Create a new escrow (starts in **PROPOSED**)
+2. Switch role to **Buyer**
+3. Fund the escrow (**FUNDED**)
+4. Release funds (**RELEASED**)
+   - or raise a dispute (**DISPUTED**) and resolve it as **Admin**
+5. View the full event history for each action
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Setup Instructions
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm install
+npm run dev
+npm test
+```
 
-## Deploy on Vercel
+App runs at: [http://localhost:3000](http://localhost:3000)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The application is ready to be deployed on Vercel.
+A live deployment link is provided with the submission.
+
+If deployment is unavailable at review time, the project can be run locally using the setup steps above.
+
+## Improvements
+
+If extended further, I would:
+
+- Replace in-memory storage with a database
+- Add authentication and real user roles
+- Persist events across restarts
+- Improve error handling and UI feedback
