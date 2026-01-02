@@ -63,7 +63,7 @@ I chose event sourcing because the assignment explicitly requires an immutable, 
 
 ### Why I chose it
 
-I chose Event Sourcing because it fundamentally changes how we think about state management in financial systems. In traditional CRUD applications, we only store the current state—if a bug corrupts data or a dispute arises, there's no reliable way to reconstruct what actually happened.
+I chose Event Sourcing because it fundamentally changes how we think about state management in financial systems. In traditional CRUD applications, we only store the current state. If a bug corrupts data or a dispute arises, there's no reliable way to reconstruct what actually happened.
 
 Event Sourcing treats **every state change as an immutable fact**. Instead of updating a row with `status = 'FUNDED'`, we append an event: `FundedEvent(timestamp, amount, buyerId)`. The current state becomes a _projection_ of this history, which means:
 
