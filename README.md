@@ -65,13 +65,13 @@ I chose event sourcing because the assignment explicitly requires an immutable, 
 
 I chose Event Sourcing because it fundamentally changes how we think about state management in financial systems. In traditional CRUD applications, we only store the current state. If a bug corrupts data or a dispute arises, there's no reliable way to reconstruct what actually happened.
 
-Event Sourcing treats **every state change as an immutable fact**. Instead of updating a row with `status = 'FUNDED'`, we append an event: `FundedEvent(timestamp, amount, buyerId)`. The current state becomes a _projection_ of this history, which means:
+Event Sourcing treats **every state change as an immutable fact**. Instead of updating a row with `status = 'FUNDED'`, we append an event: `FundedEvent(timestamp, amount, buyerId)`. The current state becomes a projection of this history, which means:
 
 - **Perfect auditability**: We can answer "who did what, when" with certainty
 - **Time travel**: We can reconstruct the exact state at any point in history
 - **Dispute resolution**: Critical for escrow systems where trust and verification are paramount
 
-This pattern is used in production by Stripe (payment ledgers), banks (transaction logs), and event-driven architectures. I wanted to understand not just the theory, but the practical challenges of implementing it—like ensuring event ordering, handling state reconstruction, and maintaining consistency.
+This pattern is used in production by Stripe (payment ledgers), banks (transaction logs), and event-driven architectures. I wanted to understand not just the theory, but the practical challenges of implementing it like ensuring event ordering, handling state reconstruction, and maintaining consistency.
 
 ### What I learned
 
