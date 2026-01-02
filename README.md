@@ -125,10 +125,10 @@ App runs at: [http://localhost:3000](http://localhost:3000)
 
 ## Deployment
 
-The application is ready to be deployed on Vercel.
-A live deployment link is provided with the submission.
+The application is deployed on Vercel.
+**Live Demo:** [https://escrow-workflow-system.vercel.app/](https://escrow-workflow-system.vercel.app/)
 
-If deployment is unavailable at review time, the project can be run locally using the setup steps above.
+The project is ready for review. If the link is unavailable, the project can be run locally using the setup steps above.
 
 ## Improvements
 
